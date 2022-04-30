@@ -1,0 +1,11 @@
+## router
+here `in_func`(`call_func`) will never be called.
+Because in the `dict{key:val}`, the `val` point to
+orignal `index` func not decorated `index`.
+
+Normally `@router('ulr')` will make `index = set_func(index)`
+so the address will changed to new address, and when you
+call `index()` it will get the decorated `index`;
+but here use `dict`, will never call `call_func`.
+
+<img src='router.png' width=400>
