@@ -1,0 +1,35 @@
+0. Class:
+	+ variable
+		- public: x
+		- protect: _x (cannot import)
+		- private: __x (child class cannot access, iherit)
+	+ attribute
+		- instance attribute: access by instance name(keep one copy in every instance)
+		- class attribute: access by class name(keep one copy in one class)
+
+	+ method
+		- instance method(param: `self`. instance invoke, give val to self)
+		- class method(param: `cls`. class invoke, give val to cls)
+		- static method(no param. class invoke)
+		- dender method(
+			`__slot__`: set bound attribute, means cannot add attribute from outside class
+			, `__doc__`, `__init__`)
+
+	+ property
+		- decorator
+			* `@property`
+			* `@property`, `@propery.setter`, `@property.deleter`
+		- property object
+			* `OBJ = property(get_func, set_func, del_func, 'description for __doc__'`)
+
+1. inheritance:
+(`Class_name.__init__(self, val)`)
+(`super().__init__(self, val)`: only run Parent class once)
+	+ single inheritance: `class GrandChild(Child1, Child2)`
+		- use `super()` method can only pass params which Parent class have.
+	+ multiple inheritance: `class GrandChild(Child1, Child2)`:
+		- use `super()` method should pass all Parent class(Child1, Child2) params. so normally up class always use `*args, **kwargs`
+
+2. closure: (notice decorator)
+
+3. poly-morphism: (override)
