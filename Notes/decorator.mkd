@@ -1,0 +1,276 @@
+# decorator
+
+## 1. enclosure
+1. nesting
+2. infunc use outfunc params
+3. outfunc return infunc
+eg.
+```python
+def out_func(param):
+	def in_func():
+		#use param
+		...
+	# here return in_func
+	# is a func name, so
+	# it returned address
+	# but not excute it
+	return in_func
+#invoke
+
+func = out_func(arg)
+func()
+```
+![enclosure](./figures/enclosure.png)
+
+**Difference `func`, `class` and `enclosoure`**
+1. `func` is a canned pice of code, when invoke, `a = func` can give you the code reference, but no data.
+2. `class` provide the "instance" `obj`, which can provide separate each instance with their own data, as a canned capsule (inlude `var`, `method`(ig. `func`), `data`), when call a class, so OOP will give all stuffs(too much).
+<img src='figures/enclousure01.png' width=300>
+
+3. `enclosoure` also a canned capsule (include `var`, `func`, `data`), but much lighter than OOP class.
+<img src='figures/enclosoure02.png' width=300>
+
+---
+
+## 2. params in func
+1. func_name as params, func_name is refer type, only transfer address eg.0x...
+2. func_name() means invocation
+3. in python all params transfered is its address (reference)
+### 2.1. func params scope
+1. (default) local
+2. nolocal: can change both in_func and out_func params
+3. globle
+
+<img src="./figures/change_params0.png" width=250 height=300>
+
+---
+
+## 3. decorator
+without change orignal code, adding new functionality to the func
+```python
+def out_func(func):
+	def in_func():
+		# add some new functionality
+		new_functionality
+		func()
+	return in_func
+
+@out_func
+def raw_func():
+	...
+
+raw_func()
+```
+<table>
+	<tr>
+	<img src="./figures/decorator0.png" width=600 height=300>
+	</tr>
+	<tr>
+	<img src="./figures/decorator1.png" width=600 height=360>
+	</tr>
+</table>
+
+### 3.1 Conclusion:
++ notice decorator only decorate function, cannot decorate decorator(see multi decorators)
+
+two correspondence:
+1. **invoke *decorated `raw_func`* => invoke `in_func`**
+2. **`out_func` param `func` <=> orignal `raw_func`**
+---
+### 3.2 params in func
+```python
+def out_func(func):
+	def in_func(param):
+		# add some new functionality
+		new_functionality
+		func(param)
+	return in_func
+
+@out_func
+def raw_func(param):
+	...
+
+raw_func(arg)
+```
+1. params in decorated `func` should pass from `in_func`, because:
+	+ **invoke *decorated `raw_func`* => invoke `in_func`**
+2. multi-params in decorated `raw_func` can be set as `*args, **kwargs`
+---
+### 3.3 decorator with return
+```python
+def out_func(func):
+	def in_func():
+		# add some new functionality
+		new_functionality
+		func()
+	return in_func
+
+@out_func
+def raw_func():
+	...
+	return 100
+
+raw_func()
+```
+output:
+```
+None
+```
+because:
++ **invoke *decorated `raw_func`* => invoke `in_func`**
+but `in_func` has no return, so return default `None`
+
+remedy:
+```python
+def out_func(func):
+	def in_func():
+		# add some new functionality
+		new_functionality
+		res = func()
+		return res
+
+	return in_func
+
+@out_func
+def raw_func():
+	...
+	return 100
+
+raw_func()
+```
+output:
+```
+100
+```
+---
+
+### 3.4 multi-layer decorators
+```python
+def out_func01(func):
+	print(f"out func 01 here run")
+	def in_func01():
+		print(f"in func 01 here run")
+		func	
+	return in_func01
+def out_func02(func):
+	print(f"out func 02 here run")
+	def in_func02():
+		print(f"in func 02 here run")
+	return in_func02
+
+@out_func02
+@out_func01
+def raw_func():
+	print(f"orignal raw func here run")
+
+raw_func()
+```
+output:
+```
+out func 01 here run
+out func 02 here run
+in func 02 here run
+in func 01 here run
+orignal raw func here run
+```
+
+Reason:
+1. decorator **only decorate func**, not other decorators.
+	+ so `out_func01` run first: print `f"out func 01 here run"`
+2. ***decorated `raw_func`* => `in_func01`**
+	+ prepared a ***new `raw_func`***, wait
+3. decorator **only decorate func**:
+	+ `out_func02` run: print `f"out func 02 here run"`
+4. ***new `raw_func`* => `in_func02`**
+	+ prepared ***final `raw_func`***, wait
+5. invoke function
+	+ run ***final `raw_func`***: print `f"in func 02 here run"`
+	+ excute ***new `raw_func`***: print `f"in func 01 here run"`
+	+ excute ***orignal `raw_func`***: print `f"orignal raw func here run"`
+
+<img src="./figures/multi_decorator.png" width=600 height=360>
+
+---
+### 3.5 decorator with params
+when need additional params to put into decorator, we need the decorator with params:
+```python
+def param_func(param):
+	def out_func(func):
+		def in_func(arg):
+			new_func
+			func()
+		return in_func
+	return out_func
+
+@param_func(param)
+def func(a):
+	...
+
+func(123)
+```
+Example:
+```python
+def param_func(flag):
+	def out_func(func):
+		def in_func(*arg):
+			if flag in {"+", "add", "plus"}:
+				res = add()
+			elif flag in {"-", "minus", 'substract'}:
+				res = sub()
+			elif flag in {'*', 'multiply', 'times'}:
+				res = mul()
+			elif flag in {'/', 'divide'}:
+				res = div()
+			return res
+		return in_func
+	return out_func
+
+"""
+1. run param_func, pass into 'flag' as params
+2. @out_func
+"""
+@param_func("+")
+def add(a, b):
+	return a+b
+@param_func('-')
+def sub(a, b):
+	return a-b
+
+"""
+3. run add or sub these func=> in_func
+"""
+add(2,1)
+sub(2,1)
+```
+<img src='./figures/decorator_with_params.png' width=200 height=300>
+
+---
+### 3.6 class decorator
+```python
+class Decorator(object):
+	def __init__(self, func): # same as out_func(func)
+		self.__func = func
+	
+	"""
+	__call__ means you can use parenthese to excute
+	the class as a function
+	ie, Decorator()
+	"""
+	def __call__(self): # same as in_func() 
+		# eg. new_func()
+		print(f'decorat the raw func')
+
+# 1. run __init__(func) same as out_func(func)
+# 	+ pass raw_func to func
+@Decorator
+def raw_func():
+	print(f'raw func run')
+
+# 2. when excute, run __call__() as in_func
+raw_func()
+```
+so the correspondences are:
+1. **invoke *decorated `raw_func`* => invoke `__call__` (ie. `in_func`)**
+2. **`__init__` (ie. `out_func`) param `func` <=> orignal `raw_func`**
+
+
