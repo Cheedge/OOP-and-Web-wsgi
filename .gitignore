@@ -1,0 +1,13 @@
+__pycache__
+bootstrap*
+bootstrap*
+.ipynb_checkpoints
+.vscode
+bootstrap-5.0.2-dist*
+python_code_tips.ipynb
+Pipfile.lock
+.python-version
+# *.png
+# *.jpg
+Web/
+
