@@ -1,0 +1,128 @@
+# TCP/IP/socket
+## concepts
+### TCP
+1. build
+2. connect
+3. close
+
+### socket
+communication tool between process like a phone
+
+# TCP app
+<img src='figure/tcp-socket-python.png' width=300>
+
+---
+
+## 1. CS frame (Client&Server)
+### 1.1 client
+```python
+# build client socket
+"""params:
+ipv4 (protocol version)
+TCP/IP (choose protocol)
+"""
+client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# connect((tuple))
+client_sock.connect((IP, PORT))
+# send
+client_sock.send(send_msg)
+# receive(data length)
+recv_msg = client_sock.recv(1024)
+# close
+client_sock.close()
+```
+### 1.2 server
+```python
+# build server socket
+server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# port reuse
+server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+# bind port
+server_sock.bind((IP, PORT))
+# listen(length)
+"""
+here server socket morph from
+proactive sock (send&recv)
+to passive sock (no send)
+"""
+server_sock.listen(128)
+# blocked and wait for servant_socket request
+"""
+return:
+1. servant socket; 2. servant address
+"""
+servant_sock, servant_addr = server_sock.accept()
+# recv
+servant_sock.recv(1024)
+# send
+servant_sock(send_msg)
+# close
+servant_sock.close()
+server_sock.close()
+```
+---
+## 2. BS frame (Browser&Server)
+different from CS frame where the protocol can be decided by themselves, but BS frame communication protocol should be unanimous (HTTP)
+
+1. build connect (TCP)
+2. send/recv msg (HTTP)
+
+**we only code on Server**
+
+## 2.1 HTTP method and url
+## 2.1.1 HTTP method
+mostly used method:
+`GET` and `POST`
+
+1. `GET` request data will put after `url`, use `?` seperate with data, connect with `&`.
+    + eg. ?q=weather&berlin
+2. `POST` request data put into request body
+
+
+### 2.1.2 url
+eg.
+https://www.google.com/search?q=weather&berlin
+1. protocol: http(s)
+2. server addr: www.google.com
+3. port: 80 (neglect)
+4. path: /search
+5. query: ?q=...
+
+### 2.2 Request/Response msg format
+#### 2.2.1 request msg format
+```http
+1. request line
+METHOD url HTTP/1.1/r/n
+2. HEAD
+key: val
+3. empty line
+/r/n
+4. body
+...
+```
+#### 2.2.2 response msg format
+```http
+1. reponse line
+HTTP/1.1 status_code descreption/r/n
+2. HEAD
+key: val
+3. body
+<html>
+```
+### 2.3 WSGI
+<img src='figure/wsgi.png' width=400>
+<img src='figure/wsgi.jpg' width=400>
+
+1. `Web Server`: only send/recv response
+    + Ngix, Apache
+2. `App Frame`: prepare dynamic source, and send to `Server`
+    + Django, Flask
+3. `WSGI`: a protocol, stipulate `Server` and `Frame` msg format
+    + `application(environ, start_response)`
+
+
+[WSGI and more see WebFrame.mkd file](./WebFrame.mkd)
+
+```python
+def application(environ, start_response)
+```
