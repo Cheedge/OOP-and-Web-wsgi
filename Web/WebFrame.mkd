@@ -1,0 +1,48 @@
+# Web Frame
+## BS Frmae (Browser&Server)
+<img src='./figure/WebFrame0.png' width=360>
+
+### WSGI
+
+<img src='figure/wsgi.jpg' width=400>
+
+1. `Web Server`: only send/recv response. 
+    + Ngix, Apache
+2. `App Frame` or `Web Frame`: prepare dynamic source, and send to `Server`
+    + Django, Flask
+3. `WSGI`: a protocol, stipulate `Server` and `Frame` msg format
+    + `application(environ, start_response)`
+
+Notic:
++ Don't let `Server` to do some job on make `html`, seperate that to `App Frame`!!!
+
+<img src='figure/wsgi.png' width=600 height=300>
+
+
+```python
+# environ: pass dictionary to Frame
+# start_response: pass the set_response_func to Frame
+def application(environ, start_response)
+```
+
+here `Server` will pass its `set_header` func to `Frame` (via `start_response`), let `Frame` call it to get the response header and transfer header to `Server` next prepare response body to `Server`.
+
+**only code on Server**
+1. build connect (Browser <-> Web Server)
+    + http protocal -> TCP protocal: link(connect) protal
+2. Browser send request
+    + to Web service
+    + request msg:
+        - request line
+        - request head
+        - request body
+3. Web server rcvd request
+    + read request find request path
+        - 2nd part of request line
+    + send response msg:
+        - response line
+        - response head
+        - response body: control response data details
+3. Browser receive response msg
+    + read response
+
